@@ -1,4 +1,4 @@
-import { authenticate, supabase } from './_auth.js'
+import { authenticate } from './_auth.js'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`
@@ -89,7 +89,7 @@ export default async function handler(req, res) {
     }
 
     // Save character to database
-    const { data: character, error: dbError } = await supabase
+    const { data: character, error: dbError } = await user._supabase
       .from('characters')
       .insert({
         user_id: user.id,

@@ -39,6 +39,14 @@ export async function authenticate(req, res) {
     return null
   }
 
+  // Create a user-scoped supabase client that passes RLS
+  const userClient = createClient(
+    process.env.VITE_SUPABASE_URL,
+    process.env.VITE_SUPABASE_ANON_KEY,
+    { global: { headers: { Authorization: `Bearer ${token}` } } }
+  )
+  user._supabase = userClient
+
   return user
 }
 

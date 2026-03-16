@@ -1,4 +1,4 @@
-import { authenticate, supabase } from './_auth.js'
+import { authenticate } from './_auth.js'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`
@@ -16,7 +16,8 @@ export default async function handler(req, res) {
 
   try {
     // Get character (verify ownership)
-    const { data: character } = await supabase
+    const db = user._supabase
+    const { data: character } = await db
       .from('characters')
       .select('id, system_prompt')
       .eq('id', characterId)
@@ -26,7 +27,7 @@ export default async function handler(req, res) {
     if (!character) return res.status(404).json({ error: 'Character not found' })
 
     // Get recent message history (last 20 messages for context)
-    const { data: history } = await supabase
+    const { data: history } = await db
       .from('messages')
       .select('role, content')
       .eq('character_id', characterId)
@@ -62,13 +63,13 @@ export default async function handler(req, res) {
     if (!reply) return res.status(500).json({ error: 'No reply from model' })
 
     // Save both messages
-    const { data: userMsg } = await supabase
+    const { data: userMsg } = await db
       .from('messages')
       .insert({ character_id: characterId, role: 'user', content: message })
       .select('id')
       .single()
 
-    const { data: assistantMsg } = await supabase
+    const { data: assistantMsg } = await db
       .from('messages')
       .insert({ character_id: characterId, role: 'assistant', content: reply })
       .select('id')
