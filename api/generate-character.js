@@ -1,7 +1,7 @@
 import { authenticate, supabase } from './_auth.js'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-preview:generateContent?key=${GEMINI_API_KEY}`
 
 const GENERATION_PROMPT = `You are analyzing a photo of a person to create a rich, realistic character for roleplay conversation.
 
