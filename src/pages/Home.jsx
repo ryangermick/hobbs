@@ -66,12 +66,15 @@ export default function Home({ session }) {
         }),
       })
 
-      if (!res.ok) throw new Error('Failed to generate character')
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.detail || errData.error || 'Failed to generate character')
+      }
       const { characterId } = await res.json()
       navigate(`/chat/${characterId}`)
     } catch (err) {
       console.error(err)
-      alert('Failed to create character. Please try again.')
+      alert(`Error: ${err.message}`)
     } finally {
       setCreating(false)
     }

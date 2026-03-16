@@ -70,12 +70,13 @@ export default async function handler(req, res) {
     if (!geminiRes.ok) {
       const err = await geminiRes.text()
       console.error('Gemini error:', err)
-      return res.status(500).json({ error: 'Vision analysis failed' })
+      return res.status(500).json({ error: 'Vision analysis failed', detail: err })
     }
 
     const geminiData = await geminiRes.json()
+    console.log('Gemini response:', JSON.stringify(geminiData).slice(0, 500))
     const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text
-    if (!text) return res.status(500).json({ error: 'No response from vision model' })
+    if (!text) return res.status(500).json({ error: 'No response from vision model', detail: JSON.stringify(geminiData).slice(0, 500) })
 
     // Parse JSON from response (handle markdown code blocks)
     let parsed
@@ -107,6 +108,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ characterId: character.id })
   } catch (err) {
     console.error('Generate character error:', err)
-    return res.status(500).json({ error: 'Internal server error' })
+    return res.status(500).json({ error: 'Internal server error', detail: err.message })
   }
 }
