@@ -122,12 +122,23 @@ export default function Home({ session }) {
             ) : (
               <button
                 onClick={() => fileRef.current.click()}
+                onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-blue-400', 'text-blue-400', 'bg-blue-500/5') }}
+                onDragLeave={e => { e.preventDefault(); e.currentTarget.classList.remove('border-blue-400', 'text-blue-400', 'bg-blue-500/5') }}
+                onDrop={e => {
+                  e.preventDefault()
+                  e.currentTarget.classList.remove('border-blue-400', 'text-blue-400', 'bg-blue-500/5')
+                  const file = e.dataTransfer.files[0]
+                  if (file && file.type.startsWith('image/')) {
+                    setSelectedFile(file)
+                    setPreview(URL.createObjectURL(file))
+                  }
+                }}
                 className="w-full h-48 border-2 border-dashed border-dark-600 rounded-xl flex flex-col items-center justify-center gap-2 text-dark-400 hover:border-dark-400 hover:text-dark-300 transition-colors mb-4"
               >
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                 </svg>
-                <span className="text-sm">Upload a photo</span>
+                <span className="text-sm">Drop a photo here or click to upload</span>
               </button>
             )}
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
