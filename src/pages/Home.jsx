@@ -48,11 +48,25 @@ export default function Home({ session }) {
 
       const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(path)
 
-      // Convert file to base64 for vision API
-      const reader = new FileReader()
-      const base64 = await new Promise((resolve) => {
-        reader.onload = () => resolve(reader.result.split(',')[1])
-        reader.readAsDataURL(selectedFile)
+      // Resize image to max 1024px and convert to base64
+      const { base64, mimeOut } = await new Promise((resolve) => {
+        const img = new Image()
+        img.onload = () => {
+          const MAX = 1024
+          let w = img.width, h = img.height
+          if (w > MAX || h > MAX) {
+            const scale = MAX / Math.max(w, h)
+            w = Math.round(w * scale)
+            h = Math.round(h * scale)
+          }
+          const canvas = document.createElement('canvas')
+          canvas.width = w
+          canvas.height = h
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85)
+          resolve({ base64: dataUrl.split(',')[1], mimeOut: 'image/jpeg' })
+        }
+        img.src = URL.createObjectURL(selectedFile)
       })
 
       // Call API to generate character
@@ -60,7 +74,7 @@ export default function Home({ session }) {
         method: 'POST',
         body: JSON.stringify({
           imageBase64: base64,
-          mimeType: selectedFile.type,
+          mimeType: mimeOut,
           guidance: guidance.trim() || undefined,
           photoUrl: publicUrl,
         }),
